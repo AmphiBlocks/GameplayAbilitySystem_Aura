@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "AuraPlayerController.generated.h"
 
+class UDamageTextComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -51,6 +52,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Skillshot")
 	void OnSkillshotIndicatorUpdate(FVector TargetLocation);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void ShowDamageNumber(float DamageAmount, bool IsCritical, ACharacter* TargetCharacter);
 
 protected:
 	virtual void BeginPlay() override;
@@ -102,5 +105,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
 
-
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };

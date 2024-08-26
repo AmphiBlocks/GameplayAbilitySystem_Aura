@@ -14,6 +14,8 @@
 class UAbilitySystemComponent;
 class UAttributeSet;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageRecievedSignature, float, NewValue, bool, IsCritical);
+
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
@@ -23,6 +25,10 @@ public:
 	AAuraCharacterBase();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; };
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
+	FOnDamageRecievedSignature OnDamaged;
+
 protected:
 	virtual void BeginPlay() override;
 
