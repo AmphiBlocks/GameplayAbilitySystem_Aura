@@ -12,6 +12,9 @@
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "Components/SplineComponent.h"
+#include "Components/DecalComponent.h"
+#include "Engine/DecalActor.h"
+#include "Interaction/CombatInterface.h"
 
 
 AAuraPlayerController::AAuraPlayerController()
@@ -26,6 +29,8 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+
+	OnSkillshotIndicatorUpdate(CursorHit.Location);
 
 	AutoRun();
 }
@@ -72,7 +77,64 @@ void AAuraPlayerController::SetupInputComponent()
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>	(InputComponent);
 
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
+	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+}
+
+void AAuraPlayerController::ShiftPressed()
+{
+	bShiftKeyDown = true;
+
+
+	OnSkillshotIndicatorShow(CursorHit.Location);
+	/*
+	APawn* ControlledPawn = GetPawn();
+
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(ControlledPawn))
+	{
+		const FVector CharacterRoot = CombatInterface->GetCombatSocketLocation();
+		FRotator Rotation = (CursorHit.Location - CharacterRoot).Rotation();
+		Rotation.Pitch = 0.f;
+
+		FTransform SpawnTransform;
+		
+		FVector DecalSize = SkillshotDecalSize; // (X Thickness, Y Width Z Height)
+
+		FVector AdjustedLocation = CharacterRoot - (FVector(0.0f, 0.5f * SkillshotDecalSize.Y, 0.0f));
+		SpawnTransform.SetLocation(AdjustedLocation);
+		//SpawnTransform.SetScale3D(DecalSize);
+		SpawnTransform.SetRotation(Rotation.Quaternion());
+		
+		SkillshotDecalActor = GetWorld()->SpawnActorDeferred<ADecalActor>(
+			ADecalActor::StaticClass(),
+			SpawnTransform,
+			this,
+			ControlledPawn,
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn,
+			ESpawnActorScaleMethod::OverrideRootScale);
+
+		if (SkillshotDecalActor) {
+			SkillshotDecalActor->SetDecalMaterial(SkillshotDecalMaterial);
+			SkillshotDecalActor->AttachToComponent(ControlledPawn->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+
+			SkillshotDecalActor->SetOwner(this);
+			SkillshotDecalActor->FinishSpawning(SpawnTransform);
+
+		}
+	}*/
+}
+
+void AAuraPlayerController::ShiftReleased()
+{
+	bShiftKeyDown = false;
+	OnSkillshotIndicatorHide();
+	/*
+	if (SkillshotDecalActor)
+	{
+		SkillshotDecalActor->Destroy();
+		SkillshotDecalActor = nullptr;
+	}*/
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -99,23 +161,14 @@ void AAuraPlayerController::CursorTrace()
 	LastActor = ThisActor;
 	ThisActor = CursorHit.GetActor();
 
-	/**
-	 * A. Lastactor is null and ThisActor is null
-	 *  - do nothing
-	 * B. Lastactor is null and ThisActor is valid
-	 *	- hovering over this actor for the first time. need to highlight it
-	 * C. Lastactor is valid and ThisActor is null
-	 *  - unhighlight LastActor
-	 * D. LastActor is valid and ThisActor is valid but they are different
-	 *  - unhighlight last actor and highlight thisactor
-	 * E. Both actors are valid and the same
-	 *  - do nothing
-	*/
-
 	if (LastActor == ThisActor) return;
 
 	if (LastActor != nullptr) LastActor->UnHighlightActor();
 	if (ThisActor != nullptr) ThisActor->HighlightActor();
+
+	if (SkillshotDecalActor) {
+		// update direction
+	}
 
 
 }
@@ -140,14 +193,10 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		return;
 	}
 
-	if (bTargeting)
+	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
+
+	if (!bTargeting && !bShiftKeyDown)
 	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagReleased(InputTag);
-		}
-	}
-	else {
 		APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn)
 		{
@@ -172,21 +221,16 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 		return;
 	}
 
-	if (bTargeting)
+	if (bTargeting || bShiftKeyDown)
 	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 	}
 	else {
 		FollowTime += GetWorld()->GetDeltaSeconds();

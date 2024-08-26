@@ -14,6 +14,9 @@ class IEnemyInterface;
 class UAuraInputConfig;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
+
+class UMaterialInterface;
+class ADecalActor;
 /**
  * 
  */
@@ -28,6 +31,27 @@ public:
 
 	void AutoRun();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UMaterialInterface* SkillshotDecalMaterial;
+
+	UPROPERTY()
+	ADecalActor* SkillshotDecalActor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FVector SkillshotDecalSize;
+
+	FHitResult CursorHit;
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Skillshot")
+	void OnSkillshotIndicatorShow(FVector TargetLocation);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Skillshot")
+	void OnSkillshotIndicatorHide();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Skillshot")
+	void OnSkillshotIndicatorUpdate(FVector TargetLocation);
+
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -39,13 +63,20 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> ShiftAction;
+
+	void ShiftPressed();
+	void ShiftReleased();
+	bool bShiftKeyDown = false;
+
 	void Move(const FInputActionValue& InputActionValue);
 
 	void CursorTrace();
 	TScriptInterface<IEnemyInterface> LastActor;
 	TScriptInterface<IEnemyInterface> ThisActor;
 
-	FHitResult CursorHit;
+
 
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
@@ -70,4 +101,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+
+
 };
