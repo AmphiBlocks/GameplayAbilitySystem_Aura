@@ -61,10 +61,6 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (HasAuthority())
 	{
-		if (UAbilitySystemComponent* OtherASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
-		{
-			OtherASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
-		}
 		Destroy();
 	}
 	else {

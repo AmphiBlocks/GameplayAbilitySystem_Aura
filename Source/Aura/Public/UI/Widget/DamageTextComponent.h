@@ -3,6 +3,7 @@
 // Cat Cat Cat
 
 
+#pragma once
 #include "CoreMinimal.h"
 #include "Components/WidgetComponent.h"
 #include "DamageTextComponent.generated.h"

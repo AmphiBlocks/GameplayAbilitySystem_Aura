@@ -52,7 +52,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Skillshot")
 	void OnSkillshotIndicatorUpdate(FVector TargetLocation);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(Client, Reliable)
 	void ShowDamageNumber(float DamageAmount, bool IsCritical, ACharacter* TargetCharacter);
 
 protected:

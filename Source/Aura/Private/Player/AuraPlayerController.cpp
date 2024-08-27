@@ -102,53 +102,12 @@ void AAuraPlayerController::ShiftPressed()
 
 
 	OnSkillshotIndicatorShow(CursorHit.Location);
-	/*
-	APawn* ControlledPawn = GetPawn();
-
-	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(ControlledPawn))
-	{
-		const FVector CharacterRoot = CombatInterface->GetCombatSocketLocation();
-		FRotator Rotation = (CursorHit.Location - CharacterRoot).Rotation();
-		Rotation.Pitch = 0.f;
-
-		FTransform SpawnTransform;
-		
-		FVector DecalSize = SkillshotDecalSize; // (X Thickness, Y Width Z Height)
-
-		FVector AdjustedLocation = CharacterRoot - (FVector(0.0f, 0.5f * SkillshotDecalSize.Y, 0.0f));
-		SpawnTransform.SetLocation(AdjustedLocation);
-		//SpawnTransform.SetScale3D(DecalSize);
-		SpawnTransform.SetRotation(Rotation.Quaternion());
-		
-		SkillshotDecalActor = GetWorld()->SpawnActorDeferred<ADecalActor>(
-			ADecalActor::StaticClass(),
-			SpawnTransform,
-			this,
-			ControlledPawn,
-			ESpawnActorCollisionHandlingMethod::AlwaysSpawn,
-			ESpawnActorScaleMethod::OverrideRootScale);
-
-		if (SkillshotDecalActor) {
-			SkillshotDecalActor->SetDecalMaterial(SkillshotDecalMaterial);
-			SkillshotDecalActor->AttachToComponent(ControlledPawn->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
-
-			SkillshotDecalActor->SetOwner(this);
-			SkillshotDecalActor->FinishSpawning(SpawnTransform);
-
-		}
-	}*/
 }
 
 void AAuraPlayerController::ShiftReleased()
 {
 	bShiftKeyDown = false;
 	OnSkillshotIndicatorHide();
-	/*
-	if (SkillshotDecalActor)
-	{
-		SkillshotDecalActor->Destroy();
-		SkillshotDecalActor = nullptr;
-	}*/
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
