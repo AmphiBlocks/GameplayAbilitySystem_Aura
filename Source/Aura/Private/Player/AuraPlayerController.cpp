@@ -139,11 +139,6 @@ void AAuraPlayerController::CursorTrace()
 	if (LastActor != nullptr) LastActor->UnHighlightActor();
 	if (ThisActor != nullptr) ThisActor->HighlightActor();
 
-	if (SkillshotDecalActor) {
-		// update direction
-	}
-
-
 }
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
@@ -152,6 +147,7 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 	{
 		bTargeting = ThisActor ? true : false;
 		bAutoRunning = false;
+		OnSkillshotIndicatorHide();
 	}
 }
 
