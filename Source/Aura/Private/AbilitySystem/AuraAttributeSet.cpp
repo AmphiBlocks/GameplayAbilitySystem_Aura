@@ -126,14 +126,12 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 			if (Props.SourceCharacter != Props.TargetCharacter)
 			{
-				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceCharacter->Controller))
 				{
 					PC->ShowDamageNumber(Damage, IsCritical, Props.TargetCharacter);
-					UE_LOG(LogTemp, Warning, TEXT("Showing Damage Number on %s, Health: %f"), *Props.TargetCharacter->GetName(), Damage);
+					//UE_LOG(LogTemp, Warning, TEXT("Showing Damage Number on %s, Health: %f"), *Props.TargetCharacter->GetName(), Damage);
 				}
 			}
-
-			UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Change:%f, Health: %f"), *Props.TargetAvatarActor->GetName(), Data.EvaluatedData.Magnitude, GetHealth());
 		}
 	}
 

@@ -29,13 +29,9 @@ AActor* AAuraAbilityManager::ChooseNextBounceTarget(int MaxBounces, float Bounce
 		BounceRadius,
 		traceObjectTypes,
 		seekClass,
-		TArray<AActor*>(),
+		AlreadyHitTargets,
 		OverlappedActors // out
 	);
-
-	for (AActor* AlreadyHitTarget : AlreadyHitTargets) {
-		OverlappedActors.RemoveSingle(AlreadyHitTarget);
-	}
 
 	OverlappedActors.Sort([BounceSourceLocation](const AActor& A, const AActor& B) -> bool
 		{
@@ -43,12 +39,21 @@ AActor* AAuraAbilityManager::ChooseNextBounceTarget(int MaxBounces, float Bounce
 				FVector::DistSquared(B.GetActorLocation(), BounceSourceLocation);
 		});
 
-	if (OverlappedActors.Num() > 0) {
-		AActor* NextTarget = OverlappedActors[0];
-		//TODO: instead of the above, walk the array until we get to one with a clear line of sight
+	while (OverlappedActors.Num() > 0) {
+		TArray<FHitResult> HitResults;
 
-		AlreadyHitTargets.Add(NextTarget);
-		return NextTarget;
+		AActor* NextTarget = OverlappedActors[0];
+		if(!GetWorld()->LineTraceMultiByChannel(
+			HitResults,
+			BounceSourceLocation,
+			NextTarget->GetActorLocation(),
+			ECC_WorldStatic
+		)){
+			AlreadyHitTargets.Add(NextTarget);
+			return NextTarget;
+		}
+		AActor* HitActor = HitResults[0].GetActor();
+		OverlappedActors.RemoveAt(0);
 	}
 
 	return nullptr;
