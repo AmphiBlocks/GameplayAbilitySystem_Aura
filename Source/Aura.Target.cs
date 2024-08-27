@@ -1,4 +1,4 @@
-// Cat Cat Cat
+// By Josh Rubenstein, built on a base of the Aura project by Stephen Ulibarri
 
 using UnrealBuildTool;
 using System.Collections.Generic;

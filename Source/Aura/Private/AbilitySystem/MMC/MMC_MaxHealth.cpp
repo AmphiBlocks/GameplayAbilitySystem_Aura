@@ -1,4 +1,4 @@
-// Cat Cat Cat
+// By Josh Rubenstein, built on a base of the Aura project by Stephen Ulibarri
 
 
 #include "AbilitySystem/MMC/MMC_MaxHealth.h"

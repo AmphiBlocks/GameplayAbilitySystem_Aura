@@ -1,6 +1,6 @@
-// Cat Cat Cat
+// By Josh Rubenstein, built on a base of the Aura project by Stephen Ulibarri
 
-// Cat Cat Cat
+// By Josh Rubenstein, built on a base of the Aura project by Stephen Ulibarri
 
 
 #pragma once
