@@ -105,14 +105,7 @@ void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 
 void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool IsCritical) const
 {
-	if (Props.SourceCharacter != Props.TargetCharacter)
-	{
-		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
-		{
-			PC->ShowDamageNumber(Damage, IsCritical, Props.TargetCharacter);
-			UE_LOG(LogTemp, Warning, TEXT("Showing Damage Number on %s, Health: %f"), *Props.TargetCharacter->GetName(), Damage);
-		}
-	}
+
 }
 
 
@@ -128,8 +121,18 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 		if (Data.EvaluatedData.Magnitude < 0) { // this is health damage, show a damage number
-			bool isCritical = (FMath::FRand() < 0.25f); // hard coding cosmetic criticals for now
-			ShowFloatingText(Props, Data.EvaluatedData.Magnitude * (isCritical ? 2 : 1), isCritical);
+			bool IsCritical = (FMath::FRand() < 0.25f); // hard coding cosmetic criticals for now
+			float Damage = Data.EvaluatedData.Magnitude * (IsCritical ? 2 : 1);
+
+			if (Props.SourceCharacter != Props.TargetCharacter)
+			{
+				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+				{
+					PC->ShowDamageNumber(Damage, IsCritical, Props.TargetCharacter);
+					UE_LOG(LogTemp, Warning, TEXT("Showing Damage Number on %s, Health: %f"), *Props.TargetCharacter->GetName(), Damage);
+				}
+			}
+
 			UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Change:%f, Health: %f"), *Props.TargetAvatarActor->GetName(), Data.EvaluatedData.Magnitude, GetHealth());
 		}
 	}
