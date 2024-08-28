@@ -6,6 +6,7 @@
 
 void AAuraAbilityManager::Initialize(AActor* InitialTarget)
 {
+	bReplicates = true;
 	AlreadyHitTargets.Empty();
 	AlreadyHitTargets.Add(InitialTarget);
 }
