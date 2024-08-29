@@ -57,9 +57,10 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation(), FRotator::ZeroRotator);
 	Sphere->SetVisibility(false, true);
 
+	OnTargetStruck(OtherActor);
+
 	if (HasAuthority())
 	{
-		OnTargetStruck(OtherActor);
 		Destroy();
 	}
 	else {
