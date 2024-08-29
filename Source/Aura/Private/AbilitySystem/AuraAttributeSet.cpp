@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include <AbilitySystemBlueprintLibrary.h>
 #include "AuraGameplayTags.h"
+#include "AuraAbilityTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/AuraPlayerController.h"
 
@@ -76,7 +77,6 @@ void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 	UAbilitySystemComponent* SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 	Props.SourceASC = SourceASC;
 
-
 	if (IsValid(SourceASC) && SourceASC->AbilityActorInfo.IsValid() && SourceASC->AbilityActorInfo->AvatarActor.IsValid())
 	{
 		Props.SourceAvatarActor = SourceASC->AbilityActorInfo->AvatarActor.Get();
@@ -120,15 +120,28 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-		if (Data.EvaluatedData.Magnitude < 0) { // this is health damage, show a damage number
-			bool IsCritical = (FMath::FRand() < 0.25f); // hard coding cosmetic criticals for now
-			float Damage = Data.EvaluatedData.Magnitude * (IsCritical ? 2 : 1);
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			bool IsCritical = false;
+			if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(Props.EffectContextHandle.Get()))
+			{
+				IsCritical = AuraEffectContext->IsCriticalHit();
+			}
 
 			if (Props.SourceCharacter != Props.TargetCharacter)
 			{
 				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceCharacter->Controller))
 				{
-					PC->ShowDamageNumber(Damage, IsCritical, Props.TargetCharacter);
+					PC->ShowDamageNumber(LocalIncomingDamage, IsCritical, Props.TargetCharacter);
 					//UE_LOG(LogTemp, Warning, TEXT("Showing Damage Number on %s, Health: %f"), *Props.TargetCharacter->GetName(), Damage);
 				}
 			}
