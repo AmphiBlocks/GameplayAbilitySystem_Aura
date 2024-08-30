@@ -10,6 +10,9 @@
 /**
  * 
  */
+class UEnvQuery;
+struct FEnvQueryResult;
+
 UCLASS(Blueprintable, BlueprintType)
 class AURA_API AAuraAbilityManager : public AActor
 {
@@ -24,4 +27,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AActor* ChooseNextBounceTarget(int MaxBounces, float BounceRadius);
+	
+	UFUNCTION(BlueprintCallable)
+	void SeekNextBounceTarget(int MaxBounces, float BounceRadius, UEnvQuery* EnemyEnvQuery);
+
+	void NearbyTargetQueryFinished(TSharedPtr<FEnvQueryResult> Result);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnTargetChosen(AActor* ChosenTarget);
 };

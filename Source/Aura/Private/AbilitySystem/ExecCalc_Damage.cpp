@@ -58,12 +58,15 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	Damage = Damage * CasterIntelligence/6;
 	const bool bIsCritical = FMath::RandRange(1, 100) < CasterCriticalHitChance;
-	Damage = bIsCritical ? Damage * 2.f : Damage;
+	Damage = floorf(bIsCritical ? (Damage * 2.f) : Damage);
 
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
-	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+
+
+	//if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		AuraEffectContext->SetIsCriticalHit(bIsCritical);
+		//AuraEffectContext->SetIsCriticalHit(bIsCritical);
+		Damage = bIsCritical ? (Damage + 0.05) : Damage;
 	}
 
 	const FGameplayModifierEvaluatedData DamageData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);

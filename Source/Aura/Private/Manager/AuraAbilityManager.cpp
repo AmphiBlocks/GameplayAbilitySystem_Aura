@@ -3,6 +3,10 @@
 #include "Manager/AuraAbilityManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Character/AuraEnemy.h"
+#include "EnvironmentQuery/EnvQuery.h"
+#include "EnvironmentQuery/EnvQueryManager.h"
+#include "EnvironmentQuery/EnvQueryTypes.h"
+#include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 
 void AAuraAbilityManager::Initialize(AActor* InitialTarget)
 {
@@ -58,4 +62,58 @@ AActor* AAuraAbilityManager::ChooseNextBounceTarget(int MaxBounces, float Bounce
 	}
 
 	return nullptr;
+}
+
+void AAuraAbilityManager::SeekNextBounceTarget(int MaxBounces, float BounceRadius, UEnvQuery* EnemyEnvQuery)
+{
+	FEnvQueryRequest QueryRequest(EnemyEnvQuery, this);
+	QueryRequest.Execute(EEnvQueryRunMode::AllMatching, this, &AAuraAbilityManager::NearbyTargetQueryFinished);
+
+}
+
+
+void AAuraAbilityManager::NearbyTargetQueryFinished(TSharedPtr<FEnvQueryResult> Result)
+{
+	if (Result.IsValid())
+	{
+		FVector BounceSourceLocation = AlreadyHitTargets[AlreadyHitTargets.Num() - 1]->GetActorLocation();
+
+		TArray<AActor*> OverlappedActors;
+
+		// Populate OverlappedActors from EQS results
+		for (int32 Index = 0; Index < Result->Items.Num(); ++Index)
+		{
+			AActor* FoundActor = Cast<AActor>(Result->GetItemAsActor(Index));
+			if (FoundActor && !AlreadyHitTargets.Contains(FoundActor))
+			{
+				OverlappedActors.Add(FoundActor);
+			}
+		}
+
+
+		OverlappedActors.Sort([BounceSourceLocation](const AActor& A, const AActor& B) -> bool
+		{
+			return FVector::DistSquared(A.GetActorLocation(), BounceSourceLocation) <
+				FVector::DistSquared(B.GetActorLocation(), BounceSourceLocation);
+		});
+
+		while (OverlappedActors.Num() > 0) {
+			TArray<FHitResult> HitResults;
+
+			AActor* NextTarget = OverlappedActors[0];
+			if (!GetWorld()->LineTraceMultiByChannel(
+				HitResults,
+				BounceSourceLocation,
+				NextTarget->GetActorLocation(),
+				ECC_WorldStatic
+			)) {
+				AlreadyHitTargets.Add(NextTarget);
+				OnTargetChosen(NextTarget);
+			}
+			AActor* HitActor = HitResults[0].GetActor();
+			OverlappedActors.RemoveAt(0);
+		}
+	}
+
+	OnTargetChosen(nullptr);
 }
