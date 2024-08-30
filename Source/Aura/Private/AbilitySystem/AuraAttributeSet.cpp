@@ -132,9 +132,10 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 
 			bool IsCritical = false;
-			if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(Props.EffectContextHandle.Get()))
+			//if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(Props.EffectContextHandle.Get()))
 			{
-				IsCritical = AuraEffectContext->IsCriticalHit();
+				//IsCritical = AuraEffectContext->IsCriticalHit();
+				IsCritical = (LocalIncomingDamage != floorf(LocalIncomingDamage)  );
 			}
 
 			if (Props.SourceCharacter != Props.TargetCharacter)
