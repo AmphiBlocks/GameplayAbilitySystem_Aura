@@ -13,6 +13,7 @@
 
 class UAbilitySystemComponent;
 class UAttributeSet;
+class UAnimMontage;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageRecievedSignature, float, NewValue, bool, IsCritical);
 
@@ -28,6 +29,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
 	FOnDamageRecievedSignature OnDamaged;
+
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -72,4 +75,6 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 
 
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 };

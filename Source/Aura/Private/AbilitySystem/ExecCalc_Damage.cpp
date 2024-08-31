@@ -55,7 +55,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	float CasterCriticalHitChance = 0.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().IntelligenceDef, EvaluationParameters, CasterIntelligence);
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitChanceDef, EvaluationParameters, CasterCriticalHitChance);
-
+	 
 	Damage = Damage * CasterIntelligence/6;
 	const bool bIsCritical = FMath::RandRange(1, 100) < CasterCriticalHitChance;
 	Damage = floorf(bIsCritical ? (Damage * 2.f) : Damage);

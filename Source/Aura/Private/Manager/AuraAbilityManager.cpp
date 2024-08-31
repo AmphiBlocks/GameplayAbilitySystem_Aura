@@ -80,7 +80,6 @@ void AAuraAbilityManager::NearbyTargetQueryFinished(TSharedPtr<FEnvQueryResult> 
 
 		TArray<AActor*> OverlappedActors;
 
-		// Populate OverlappedActors from EQS results
 		for (int32 Index = 0; Index < Result->Items.Num(); ++Index)
 		{
 			AActor* FoundActor = Cast<AActor>(Result->GetItemAsActor(Index));
@@ -89,7 +88,6 @@ void AAuraAbilityManager::NearbyTargetQueryFinished(TSharedPtr<FEnvQueryResult> 
 				OverlappedActors.Add(FoundActor);
 			}
 		}
-
 
 		OverlappedActors.Sort([BounceSourceLocation](const AActor& A, const AActor& B) -> bool
 		{

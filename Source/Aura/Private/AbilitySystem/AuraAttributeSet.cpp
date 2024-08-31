@@ -138,6 +138,10 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				IsCritical = (LocalIncomingDamage != floorf(LocalIncomingDamage)  );
 			}
 
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(FAuraGameplayTags::Get().HitReact);
+			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+
 			if (Props.SourceCharacter != Props.TargetCharacter)
 			{
 				if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceCharacter->Controller))
