@@ -68,7 +68,6 @@ void AAuraAbilityManager::SeekNextBounceTarget(int MaxBounces, float BounceRadiu
 {
 	FEnvQueryRequest QueryRequest(EnemyEnvQuery, this);
 	QueryRequest.Execute(EEnvQueryRunMode::AllMatching, this, &AAuraAbilityManager::NearbyTargetQueryFinished);
-
 }
 
 
@@ -78,38 +77,28 @@ void AAuraAbilityManager::NearbyTargetQueryFinished(TSharedPtr<FEnvQueryResult> 
 	{
 		FVector BounceSourceLocation = AlreadyHitTargets[AlreadyHitTargets.Num() - 1]->GetActorLocation();
 
-		TArray<AActor*> OverlappedActors;
+		TArray<AActor*> QueriedActors;
 
 		for (int32 Index = 0; Index < Result->Items.Num(); ++Index)
 		{
 			AActor* FoundActor = Cast<AActor>(Result->GetItemAsActor(Index));
 			if (FoundActor && !AlreadyHitTargets.Contains(FoundActor))
 			{
-				OverlappedActors.Add(FoundActor);
+				QueriedActors.Add(FoundActor);
 			}
 		}
 
-		OverlappedActors.Sort([BounceSourceLocation](const AActor& A, const AActor& B) -> bool
-		{
-			return FVector::DistSquared(A.GetActorLocation(), BounceSourceLocation) <
-				FVector::DistSquared(B.GetActorLocation(), BounceSourceLocation);
-		});
+		QueriedActors.Sort([BounceSourceLocation](const AActor& A, const AActor& B) -> bool
+			{
+				return FVector::DistSquared(A.GetActorLocation(), BounceSourceLocation) <
+					FVector::DistSquared(B.GetActorLocation(), BounceSourceLocation);
+			});
 
-		while (OverlappedActors.Num() > 0) {
-			TArray<FHitResult> HitResults;
-
-			AActor* NextTarget = OverlappedActors[0];
-			if (!GetWorld()->LineTraceMultiByChannel(
-				HitResults,
-				BounceSourceLocation,
-				NextTarget->GetActorLocation(),
-				ECC_WorldStatic
-			)) {
-				AlreadyHitTargets.Add(NextTarget);
-				OnTargetChosen(NextTarget);
-			}
-			AActor* HitActor = HitResults[0].GetActor();
-			OverlappedActors.RemoveAt(0);
+		if (QueriedActors.Num() > 0) {
+			AActor* NextTarget = QueriedActors[0];
+			AlreadyHitTargets.Add(NextTarget);
+			//UE_LOG(LogTemp, Warning, TEXT("Chaining to %s : %f"), *NextTarget->GetName(), Result->GetItemScore(0));
+			OnTargetChosen(NextTarget);
 		}
 	}
 
