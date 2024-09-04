@@ -82,17 +82,11 @@ void AAuraAbilityManager::NearbyTargetQueryFinished(TSharedPtr<FEnvQueryResult> 
 		for (int32 Index = 0; Index < Result->Items.Num(); ++Index)
 		{
 			AActor* FoundActor = Cast<AActor>(Result->GetItemAsActor(Index));
-			if (FoundActor && !AlreadyHitTargets.Contains(FoundActor))
-			{
+			//if (FoundActor && !AlreadyHitTargets.Contains(FoundActor))
+			//{
 				QueriedActors.Add(FoundActor);
-			}
+			//}
 		}
-
-		QueriedActors.Sort([BounceSourceLocation](const AActor& A, const AActor& B) -> bool
-			{
-				return FVector::DistSquared(A.GetActorLocation(), BounceSourceLocation) <
-					FVector::DistSquared(B.GetActorLocation(), BounceSourceLocation);
-			});
 
 		if (QueriedActors.Num() > 0) {
 			AActor* NextTarget = QueriedActors[0];
